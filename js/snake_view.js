@@ -1,13 +1,37 @@
-function SnakeView(board, $el){
-  this.board = board;
+const Board = require('./board');
+const $l = require('./jquery_lite/jquery_lite');
+
+function SnakeView($el){
   this.$el = $el;
-  
-  $('body').on("keydown", (event) => {
+  this.board = new Board();
+  this.makeBoard();
+  this.interval = window.setInterval(this.step.bind(this), 500);
+
+  $l('body').on("keydown", (event) => {
     this.handleKeyEvent(event.keyCode);
   });
 }
 
-//left 37, up 38, right 39, down 40
+SnakeView.prototype.renderBoard = function() {
+  let cols = $l('li');
+  cols.attr("style", "");
+  this.board.snake.segments.forEach((segment) => {
+    let idx = segment[1] * this.board.grid + segment[0];
+
+    $l(cols.htmlElements[idx]).attr("style", "background-color: red");
+  });
+  // make apple too
+};
+
+SnakeView.prototype.step = function() {
+  this.renderBoard();
+  if (this.board.snake.alive) {
+    this.board.snake.move();
+  } else {
+    alert("Your snake died. Refresh the page and try again if you want.");
+    window.clearInterval(this.interval);
+  }
+};
 
 SnakeView.prototype.handleKeyEvent = function(keyCode) {
   switch(keyCode) {
@@ -24,6 +48,20 @@ SnakeView.prototype.handleKeyEvent = function(keyCode) {
       this.board.snake.turn("S");
       break;
   }
+};
+
+SnakeView.prototype.makeBoard = function() {
+  let $newBoard = $l('<ul></ul>');
+  for (let i=0; i< this.board.grid; i++) {
+    let $newRow = $l('<ul></ul>');
+    $newRow.addClass("row");
+    for (let j=0; j <this.board.grid; j++) {
+      $newRow.append('<li></li>');
+    }
+    $newBoard.append($newRow);
+  }
+  $newBoard.addClass("board");
+  this.$el.append($newBoard);
 };
 
 module.exports = SnakeView;

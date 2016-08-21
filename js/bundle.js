@@ -44,29 +44,114 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const View = __webpack_require__(1);
-	const Board = __webpack_require__(4);
+	const $l = __webpack_require__(1);
+	const SnakeView = __webpack_require__(2);
 	
-	$( () => {
-	  const board = new Board();
-	  const view = new View(board, $('.snake'));
+	$l( () => {
+	  const snakeView = new SnakeView($l('.snake'));
 	});
 
 
 /***/ },
 /* 1 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	function SnakeView(board, $el){
-	  this.board = board;
+	const DOMNodeCollection = __webpack_require__(6);
+	
+	function $l (selector) {
+	  if (typeof selector === "function") {
+	    document.addEventListener("DOMContentLoaded", selector);
+	    return;
+	  }
+	
+	  let object = [selector];
+	
+	  if (typeof selector === "string") {
+	    if (selector.indexOf("<") === -1 ) {
+	      selector = document.querySelectorAll(selector);
+	      object = Array.from(selector);
+	    } else {
+	      let tag = selector.match(/<(.+)><\//)[1];
+	      object = [document.createElement(tag)];
+	    }
+	  }
+	
+	  return new DOMNodeCollection(object);
+	}
+	
+	$l.prototype.extend = function (first, ...objects) {
+	  objects.forEach((ob) => {
+	    Object.keys(ob).forEach((key) => {
+	      first.key = ob.key;
+	    });
+	  });
+	
+	  return first;
+	};
+	
+	$l.prototype.ajax = function (options) {
+	  const xhr = new XMLHttpRequest();
+	  let defaults = {type: "GET",
+	                  dataType: "json",
+	                  error: () => console.log("error!"),
+	                  data: {}
+	  };
+	  options = this.extend(defaults, options);
+	  xhr.open(options.type, options.url);
+	
+	  xhr.onload = function () {
+	    if (xhr.status === 200) {
+	      options.success(xhr.response);
+	    } else {
+	      options.error();
+	    }
+	  };
+	
+	  xhr.send(options.data);
+	};
+	
+	
+	module.exports = $l;
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	const Board = __webpack_require__(3);
+	const $l = __webpack_require__(1);
+	
+	function SnakeView($el){
 	  this.$el = $el;
-	  
-	  $('body').on("keydown", (event) => {
+	  this.board = new Board();
+	  this.makeBoard();
+	  this.interval = window.setInterval(this.step.bind(this), 500);
+	
+	  $l('body').on("keydown", (event) => {
 	    this.handleKeyEvent(event.keyCode);
 	  });
 	}
 	
-	//left 37, up 38, right 39, down 40
+	SnakeView.prototype.renderBoard = function() {
+	  let cols = $l('li');
+	  cols.attr("style", "");
+	  this.board.snake.segments.forEach((segment) => {
+	    let idx = segment[1] * this.board.grid + segment[0];
+	
+	    $l(cols.htmlElements[idx]).attr("style", "background-color: red");
+	  });
+	  // make apple too
+	};
+	
+	SnakeView.prototype.step = function() {
+	  this.renderBoard();
+	  if (this.board.snake.alive) {
+	    this.board.snake.move();
+	  } else {
+	    alert("Your snake died. Refresh the page and try again if you want.");
+	    window.clearInterval(this.interval);
+	  }
+	};
 	
 	SnakeView.prototype.handleKeyEvent = function(keyCode) {
 	  switch(keyCode) {
@@ -85,99 +170,243 @@
 	  }
 	};
 	
+	SnakeView.prototype.makeBoard = function() {
+	  let $newBoard = $l('<ul></ul>');
+	  for (let i=0; i< this.board.grid; i++) {
+	    let $newRow = $l('<ul></ul>');
+	    $newRow.addClass("row");
+	    for (let j=0; j <this.board.grid; j++) {
+	      $newRow.append('<li></li>');
+	    }
+	    $newBoard.append($newRow);
+	  }
+	  $newBoard.addClass("board");
+	  this.$el.append($newBoard);
+	};
+	
 	module.exports = SnakeView;
 
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Coord = __webpack_require__(3);
+	const Snake = __webpack_require__(4);
 	
-	function Snake() {
-	  this.directions = ["N", "E", "S", "W"];
-	  this.currentDirection = this.directions[0];
-	  this.head = [5,5];
-	  this.coord = new Coord();
-	  this.segments = [this.head];
-	  this.snakeLength = 1;
+	function Board(){
+	  this.grid = 20;
+	  this.snake = new Snake(this);
+	  this.apple = [10, 10];
 	}
 	
-	Snake.prototype.move = function(){
-	  // this.segments.forEach((segment) => {
-	  //   segment.plus(this.directions.indexOf(this.currentDirection));
-	  // });
-	  let cardIdx = this.directions.indexOf(this.currentDirection);
-	  let newPos = this.coord.plus(this.head, cardIdx);
-	  this.segments.shift(newPos);
-	  this.segments = this.segments.slice(0, this.snakeLength);
-	  this.head = newPos;
-	};
 	
-	Snake.prototype.turn = function(newDirection){
-	  console.log(newDirection);
-	  this.currentDirection = newDirection;
-	};
-	
-	
-	module.exports = Snake;
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	
-	function Coord() {
-	  this.CARDINALS = [[0,-1],[1,0],[0,1],[-1,0]];
-	}
-	
-	Coord.prototype.plus = function(pos, cardIdx) {
-	  pos[0] += this.CARDINALS[cardIdx][0];
-	  pos[1] += this.CARDINALS[cardIdx][1];
-	  return pos;
-	};
-	
-	Coord.prototype.equals = function(pos1, pos2){
-	  return (pos1[0] === pos2[0] && pos1[1] === pos2[1]);
-	};
-	
-	Coord.prototype.isOpposite = function(cardIdx, currentKey){
-	  // if(){
-	  //
-	  // }
-	  // else{
-	  //
-	  // }
-	};
-	
-	module.exports = Coord;
+	module.exports = Board;
 
 
 /***/ },
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Snake = __webpack_require__(2);
+	const Coord = __webpack_require__(5);
+	const coord = new Coord();
 	
-	function Board(){
-	  this.grid = this.makeGrid();
-	  this.snake = new Snake();
+	function Snake(board) {
+	  this.direction = 'N';
+	  this.head = [6, 6];
+	  this.segments = [this.head];
+	  this.snakeLength = 1;
+	  this.board = board;
+	  this.alive = true;
 	}
 	
-	Board.prototype.makeGrid = function(){
-	  let grid = [];
-	  for(let i = 0; i < 20; i++){
-	    let row = [];
-	    for(let j = 0; j < 20; j++){
-	      row.push(undefined);
-	    }
-	    grid.push(row);
+	Snake.prototype.move = function() {
+	  let newPos = coord.plus(this.head, this.direction);
+	  if (this.inGrid(newPos)) {
+	    this.segments.unshift(newPos);
+	    this.segments = this.segments.slice(0, this.snakeLength);
+	    this.head = newPos;
+	  } else {
+	    this.alive = false;
 	  }
-	  return grid;
 	};
 	
-	module.exports = Board;
+	Snake.prototype.inGrid = function(pos) {
+	  let xValid = (pos[0] >= 0 && pos[0] < this.board.grid);
+	  let yValid = (pos[1] >= 0 && pos[1] < this.board.grid);
+	  return (xValid && yValid);
+	};
+	
+	Snake.prototype.turn = function(newDirection){
+	  if (!coord.isOpposite(this.direction, newDirection)) {
+	    this.direction = newDirection;
+	  }
+	};
+	//
+	// let b = {};
+	// b.grid = 20;
+	// let s = new Snake(b);
+	// s.move();
+	// s.move();
+	// s.move();
+	// s.move();
+	// s.move();
+	// s.move();
+	// console.log(s);
+	// console.log(s.checkOver());
+	
+	
+	module.exports = Snake;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	const directions = ["N", "E", "S", "W"];
+	const cardinal = [[0,-1],[1,0],[0,1],[-1,0]];
+	const oppositeSets = ["NS", "SN", "EW", "WE"];
+	
+	function Coord() {
+	}
+	
+	Coord.prototype.plus = function(pos, direction) {
+	  let cardIdx = directions.indexOf(direction);
+	  let newPos = [pos[0] + cardinal[cardIdx][0], pos[1] + cardinal[cardIdx][1]];
+	  return newPos;
+	};
+	
+	Coord.prototype.equals = function(pos1, pos2){
+	  return (pos1[0] === pos2[0] && pos1[1] === pos2[1]);
+	};
+	
+	Coord.prototype.isOpposite = function(snakeDirection, keyDirection){
+	  return oppositeSets.includes([snakeDirection, keyDirection].join(""));
+	};
+	
+	Coord.prototype.getRandomPos = function() {
+	  //Not yet implemented
+	};
+	
+	module.exports = Coord;
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	class DOMNodeCollection {
+	  constructor(htmlElements) {
+	    this.htmlElements = htmlElements;
+	  }
+	
+	  html(str) {
+	    if (str === undefined) {
+	      return [this.htmlElements[0].innerHTML];
+	    } else {
+	      this.htmlElements.forEach((el) => {
+	        el.innerHTML = str;
+	      });
+	      return this.htmlElements;
+	    }
+	  }
+	
+	  empty() {
+	    this.htmlElements.forEach((el) => {
+	      el.innerHTML = "";
+	    });
+	    return this.htmlElements;
+	  }
+	
+	  append(input) {
+	    if (typeof input === "string") {
+	      this.htmlElements.forEach((htmlEl) => {
+	        htmlEl.innerHTML += input;
+	      });
+	    } else {
+	      input.htmlElements.forEach((el) => {
+	        this.htmlElements.forEach((htmlEl) => {
+	          htmlEl.innerHTML += el.outerHTML;
+	        });
+	      });
+	    }
+	    return this.htmlElements;
+	  }
+	
+	  attr(key, value) {
+	    if (value === undefined) {
+	      return this.htmlElements[0].getAttribute(key);
+	    } else {
+	      this.htmlElements.forEach((el) => {
+	        el.setAttribute(key, value);
+	      });
+	    }
+	  }
+	
+	  addClass(str) {
+	    this.htmlElements.forEach((el) => {
+	      el.className += " " + str;
+	    });
+	  }
+	
+	  removeClass(str) {
+	    this.htmlElements.forEach((el) => {
+	      let classNames = el.className.split(" ");
+	      if (classNames.includes(str)) {
+	        classNames.splice(classNames.indexOf(str), 1);
+	      }
+	
+	      el.className = classNames.join(" ");
+	    });
+	  }
+	
+	  children() {
+	    let kids = [];
+	    this.htmlElements.forEach((el) => {
+	      kids = kids.concat(el.children);
+	    });
+	
+	    return kids;
+	  }
+	
+	  parent() {
+	    let parents = [];
+	    this.htmlElements.forEach((el) => {
+	      parents = parents.concat(el.parentNode);
+	    });
+	
+	    return parents;
+	  }
+	
+	  find(selector) {
+	    let result = [];
+	    this.htmlElements.forEach((el) => {
+	      result = result.concat(el.querySelectorAll(selector));
+	    });
+	
+	    return result;
+	  }
+	
+	  remove() {
+	    this.htmlElements.forEach((el) => {
+	      el.outerHTML = "";
+	    });
+	  }
+	
+	  on(trigger, callback) {
+	    this.htmlElements.forEach((el) => {
+	      el.addEventListener(trigger, callback);
+	    });
+	  }
+	
+	  off(trigger, callback) {
+	    this.htmlElements.forEach((el) => {
+	      el.removeEventListener(trigger, callback);
+	    });
+	  }
+	
+	}
+	
+	module.exports = DOMNodeCollection;
 
 
 /***/ }

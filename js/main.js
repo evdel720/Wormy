@@ -1,7 +1,6 @@
-const View = require('./snake_view');
-const Board = require('./board');
+const $l = require('./jquery_lite/jquery_lite');
+const SnakeView = require('./snake_view');
 
-$( () => {
-  const board = new Board();
-  const view = new View(board, $('.snake'));
+$l( () => {
+  const snakeView = new SnakeView($l('.snake'));
 });
