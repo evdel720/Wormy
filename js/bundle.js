@@ -120,12 +120,13 @@
 
 	const Board = __webpack_require__(3);
 	const $l = __webpack_require__(1);
+	const coord = __webpack_require__(5);
 	
 	function SnakeView($el){
 	  this.$el = $el;
 	  this.board = new Board();
 	  this.makeBoard();
-	  this.interval = window.setInterval(this.step.bind(this), 500);
+	  this.interval = window.setInterval(this.step.bind(this), 100);
 	
 	  $l('body').on("keydown", (event) => {
 	    this.handleKeyEvent(event.keyCode);
@@ -135,12 +136,14 @@
 	SnakeView.prototype.renderBoard = function() {
 	  let cols = $l('li');
 	  cols.attr("style", "");
-	  this.board.snake.segments.forEach((segment) => {
-	    let idx = segment[1] * this.board.grid + segment[0];
+	  let appleIdx = this.board.getIdxOfPos(this.board.apple);
+	  $l(cols.htmlElements[appleIdx]).attr("style", "background-color: red");
 	
-	    $l(cols.htmlElements[idx]).attr("style", "background-color: red");
+	  this.board.snake.segments.forEach((segment) => {
+	    let snakeIdx = this.board.getIdxOfPos(segment.split(" "));
+	
+	    $l(cols.htmlElements[snakeIdx]).attr("style", "background-color: green");
 	  });
-	  // make apple too
 	};
 	
 	SnakeView.prototype.step = function() {
@@ -195,9 +198,23 @@
 	
 	function Board(){
 	  this.grid = 20;
-	  this.snake = new Snake(this);
-	  this.apple = [10, 10];
+	  this.snake = new Snake(this, this.getRandomPos());
+	  this.apple = this.getRandomPos();
 	}
+	
+	Board.prototype.getRandomPos = function() {
+	  let x = Math.floor(Math.random() * this.grid);
+	  let y = Math.floor(Math.random() * this.grid);
+	  return [x, y];
+	};
+	
+	Board.prototype.updateApple = function() {
+	  this.apple = this.getRandomPos();
+	};
+	
+	Board.prototype.getIdxOfPos = function(pos) {
+	  return parseInt(pos[1]) * this.grid + parseInt(pos[0]);
+	};
 	
 	
 	module.exports = Board;
@@ -207,22 +224,33 @@
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	const Coord = __webpack_require__(5);
-	const coord = new Coord();
+	const coord = __webpack_require__(5);
 	
-	function Snake(board) {
+	function Snake(board, pos) {
 	  this.direction = 'N';
-	  this.head = [6, 6];
-	  this.segments = [this.head];
+	  this.head = pos;
+	  this.segments = [this.head.join(" ")];
 	  this.snakeLength = 1;
 	  this.board = board;
 	  this.alive = true;
 	}
 	
+	Snake.prototype.updateLength = function() {
+	  this.snakeLength += 1;
+	};
+	
 	Snake.prototype.move = function() {
 	  let newPos = coord.plus(this.head, this.direction);
+	
 	  if (this.inGrid(newPos)) {
-	    this.segments.unshift(newPos);
+	    if (coord.equals(newPos, this.board.apple)) {
+	      this.updateLength();
+	      this.board.updateApple();
+	    } else if (this.segments.includes(newPos.join(" "))) {
+	      this.alive = false;
+	      return;
+	    }
+	    this.segments.unshift(newPos.join(" "));
 	    this.segments = this.segments.slice(0, this.snakeLength);
 	    this.head = newPos;
 	  } else {
@@ -283,11 +311,10 @@
 	  return oppositeSets.includes([snakeDirection, keyDirection].join(""));
 	};
 	
-	Coord.prototype.getRandomPos = function() {
-	  //Not yet implemented
-	};
 	
-	module.exports = Coord;
+	const coord = new Coord();
+	
+	module.exports = coord;
 
 
 /***/ },

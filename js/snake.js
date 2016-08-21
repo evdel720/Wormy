@@ -1,19 +1,30 @@
-const Coord = require('./coord');
-const coord = new Coord();
+const coord = require('./coord');
 
-function Snake(board) {
+function Snake(board, pos) {
   this.direction = 'N';
-  this.head = [6, 6];
-  this.segments = [this.head];
+  this.head = pos;
+  this.segments = [this.head.join(" ")];
   this.snakeLength = 1;
   this.board = board;
   this.alive = true;
 }
 
+Snake.prototype.updateLength = function() {
+  this.snakeLength += 1;
+};
+
 Snake.prototype.move = function() {
   let newPos = coord.plus(this.head, this.direction);
+
   if (this.inGrid(newPos)) {
-    this.segments.unshift(newPos);
+    if (coord.equals(newPos, this.board.apple)) {
+      this.updateLength();
+      this.board.updateApple();
+    } else if (this.segments.includes(newPos.join(" "))) {
+      this.alive = false;
+      return;
+    }
+    this.segments.unshift(newPos.join(" "));
     this.segments = this.segments.slice(0, this.snakeLength);
     this.head = newPos;
   } else {

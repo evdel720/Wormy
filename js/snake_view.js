@@ -1,11 +1,12 @@
 const Board = require('./board');
 const $l = require('./jquery_lite/jquery_lite');
+const coord = require('./coord');
 
 function SnakeView($el){
   this.$el = $el;
   this.board = new Board();
   this.makeBoard();
-  this.interval = window.setInterval(this.step.bind(this), 500);
+  this.interval = window.setInterval(this.step.bind(this), 100);
 
   $l('body').on("keydown", (event) => {
     this.handleKeyEvent(event.keyCode);
@@ -15,12 +16,14 @@ function SnakeView($el){
 SnakeView.prototype.renderBoard = function() {
   let cols = $l('li');
   cols.attr("style", "");
-  this.board.snake.segments.forEach((segment) => {
-    let idx = segment[1] * this.board.grid + segment[0];
+  let appleIdx = this.board.getIdxOfPos(this.board.apple);
+  $l(cols.htmlElements[appleIdx]).attr("style", "background-color: red");
 
-    $l(cols.htmlElements[idx]).attr("style", "background-color: red");
+  this.board.snake.segments.forEach((segment) => {
+    let snakeIdx = this.board.getIdxOfPos(segment.split(" "));
+
+    $l(cols.htmlElements[snakeIdx]).attr("style", "background-color: green");
   });
-  // make apple too
 };
 
 SnakeView.prototype.step = function() {

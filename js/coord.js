@@ -19,8 +19,7 @@ Coord.prototype.isOpposite = function(snakeDirection, keyDirection){
   return oppositeSets.includes([snakeDirection, keyDirection].join(""));
 };
 
-Coord.prototype.getRandomPos = function() {
-  //Not yet implemented
-};
 
-module.exports = Coord;
+const coord = new Coord();
+
+module.exports = coord;
