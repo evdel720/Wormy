@@ -48,7 +48,12 @@
 	const SnakeView = __webpack_require__(2);
 	
 	$l( () => {
-	  const snakeView = new SnakeView($l('.snake'));
+	  $l('.start').on('click', (e) => {
+	    $l('.snake').empty();
+	    $l('h1').html("Wormy : )");
+	    $l('.start').html('Click Here to start!');
+	    const snakeView = new SnakeView($l('.snake'));
+	  });
 	});
 
 
@@ -137,12 +142,12 @@
 	  let cols = $l('li');
 	  cols.attr("style", "");
 	  let appleIdx = this.board.getIdxOfPos(this.board.apple);
-	  $l(cols.htmlElements[appleIdx]).attr("style", "background-color: red");
+	  $l(cols.htmlElements[appleIdx]).attr("style", "background-color: red; border-radius: 10px");
 	
 	  this.board.snake.segments.forEach((segment) => {
 	    let snakeIdx = this.board.getIdxOfPos(segment.split(" "));
 	
-	    $l(cols.htmlElements[snakeIdx]).attr("style", "background-color: green");
+	    $l(cols.htmlElements[snakeIdx]).attr("style", "background-color: green;  border-radius: 10px");
 	  });
 	};
 	
@@ -151,7 +156,9 @@
 	  if (this.board.snake.alive) {
 	    this.board.snake.move();
 	  } else {
-	    alert("Your snake died. Refresh the page and try again if you want.");
+	    $l('h1').html("Your wormy died : (");
+	    $l('.start').html('Click Here to retry!');
+	    $l('.board').attr("style", "background-color: #ccc");
 	    window.clearInterval(this.interval);
 	  }
 	};

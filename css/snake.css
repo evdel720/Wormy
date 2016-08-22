@@ -1,11 +1,39 @@
+body {
+  text-align: center;
+  background-color: #ccc;
+  padding-top: 20px;
+}
+
+h1 {
+  font-family: 'Baloo Tamma', cursive;
+  display: inline;
+  margin-right: 50px;
+}
+
+.start {
+  font-family: 'Baloo Tamma', cursive;
+  font-size: 20px;
+  width: 200px;
+  height: 40px;
+  display: inline;
+  background-color: pink;
+}
+
+.snake {
+  width: 100%;
+  margin: 0px;
+}
 
 .board {
+  background-color: pink;
   list-style: none;
-  padding: 0;
-  display: inline-block;
-  width: auto;
-  height: auto;
-  border: 2px blue solid;
+  padding: 0px;
+  display: block;
+  width: 500px;
+  height: 500px;
+  border: 2px black solid;
+  margin: auto;
+  margin-top: 20px;
 }
 
 .row {
@@ -13,12 +41,12 @@
   margin: 0;
   list-style: none;
   display: block;
-  height: 20px;
+  height: 25px;
+  width: 500px;
 }
 
 li {
   display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 1px black solid;
+  width: 25px;
+  height: 25px;
 }
