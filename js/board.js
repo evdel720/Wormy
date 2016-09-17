@@ -1,8 +1,8 @@
-const Snake = require('./snake');
+const Wormy = require('./wormy');
 
 function Board(){
   this.grid = 20;
-  this.snake = new Snake(this, this.getRandomPos());
+  this.wormy = new Wormy(this, this.getRandomPos());
   this.apple = this.getRandomPos();
 }
 

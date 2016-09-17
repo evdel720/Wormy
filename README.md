@@ -16,7 +16,7 @@
   I unshifted the coords of wormy's head in the segments array and slice the array with its length to update the wormy each time it moves. I also kept the coords as string to maintain its uniqueness.
   ```javascript
   this.segments.unshift(newPos.join(" "));
-  this.segments = this.segments.slice(0, this.snakeLength);
+  this.segments = this.segments.slice(0, this.wormyLength);
   this.head = newPos;
   ```
 

@@ -15,8 +15,8 @@ Coord.prototype.equals = function(pos1, pos2){
   return (pos1[0] === pos2[0] && pos1[1] === pos2[1]);
 };
 
-Coord.prototype.isOpposite = function(snakeDirection, keyDirection){
-  return oppositeSets.includes([snakeDirection, keyDirection].join(""));
+Coord.prototype.isOpposite = function(wormyDirection, keyDirection){
+  return oppositeSets.includes([wormyDirection, keyDirection].join(""));
 };
 
 

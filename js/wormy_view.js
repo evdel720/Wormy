@@ -2,7 +2,7 @@ const Board = require('./board');
 const $l = require('./jquery_lite/jquery_lite');
 const coord = require('./coord');
 
-function SnakeView($el){
+function WormyView($el){
   this.$el = $el;
   this.board = new Board();
   this.makeBoard();
@@ -13,23 +13,23 @@ function SnakeView($el){
   });
 }
 
-SnakeView.prototype.renderBoard = function() {
+WormyView.prototype.renderBoard = function() {
   let cols = $l('li');
   cols.attr("style", "");
   let appleIdx = this.board.getIdxOfPos(this.board.apple);
   $l(cols.htmlElements[appleIdx]).attr("style", "background-color: red; border-radius: 10px");
 
-  this.board.snake.segments.forEach((segment) => {
-    let snakeIdx = this.board.getIdxOfPos(segment.split(" "));
+  this.board.wormy.segments.forEach((segment) => {
+    let wormyIdx = this.board.getIdxOfPos(segment.split(" "));
 
-    $l(cols.htmlElements[snakeIdx]).attr("style", "background-color: green;  border-radius: 10px");
+    $l(cols.htmlElements[wormyIdx]).attr("style", "background-color: green;  border-radius: 10px");
   });
 };
 
-SnakeView.prototype.step = function() {
+WormyView.prototype.step = function() {
   this.renderBoard();
-  if (this.board.snake.alive) {
-    this.board.snake.move();
+  if (this.board.wormy.alive) {
+    this.board.wormy.move();
   } else {
     $l('h1').html("Your wormy died : (");
     $l('.start').html('Click Here to retry!');
@@ -38,24 +38,24 @@ SnakeView.prototype.step = function() {
   }
 };
 
-SnakeView.prototype.handleKeyEvent = function(keyCode) {
+WormyView.prototype.handleKeyEvent = function(keyCode) {
   switch(keyCode) {
     case 37:
-      this.board.snake.turn("W");
+      this.board.wormy.turn("W");
       break;
     case 38:
-      this.board.snake.turn("N");
+      this.board.wormy.turn("N");
       break;
     case 39:
-      this.board.snake.turn("E");
+      this.board.wormy.turn("E");
       break;
     case 40:
-      this.board.snake.turn("S");
+      this.board.wormy.turn("S");
       break;
   }
 };
 
-SnakeView.prototype.makeBoard = function() {
+WormyView.prototype.makeBoard = function() {
   let $newBoard = $l('<ul></ul>');
   for (let i=0; i< this.board.grid; i++) {
     let $newRow = $l('<ul></ul>');
@@ -69,4 +69,4 @@ SnakeView.prototype.makeBoard = function() {
   this.$el.append($newBoard);
 };
 
-module.exports = SnakeView;
+module.exports = WormyView;

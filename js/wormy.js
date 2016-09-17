@@ -1,19 +1,19 @@
 const coord = require('./coord');
 
-function Snake(board, pos) {
+function Wormy(board, pos) {
   this.direction = 'N';
   this.head = pos;
   this.segments = [this.head.join(" ")];
-  this.snakeLength = 1;
+  this.wormyLength = 1;
   this.board = board;
   this.alive = true;
 }
 
-Snake.prototype.updateLength = function() {
-  this.snakeLength += 1;
+Wormy.prototype.updateLength = function() {
+  this.wormyLength += 1;
 };
 
-Snake.prototype.move = function() {
+Wormy.prototype.move = function() {
   let newPos = coord.plus(this.head, this.direction);
 
   if (this.inGrid(newPos)) {
@@ -25,23 +25,23 @@ Snake.prototype.move = function() {
       return;
     }
     this.segments.unshift(newPos.join(" "));
-    this.segments = this.segments.slice(0, this.snakeLength);
+    this.segments = this.segments.slice(0, this.wormyLength);
     this.head = newPos;
   } else {
     this.alive = false;
   }
 };
 
-Snake.prototype.inGrid = function(pos) {
+Wormy.prototype.inGrid = function(pos) {
   let xValid = (pos[0] >= 0 && pos[0] < this.board.grid);
   let yValid = (pos[1] >= 0 && pos[1] < this.board.grid);
   return (xValid && yValid);
 };
 
-Snake.prototype.turn = function(newDirection){
+Wormy.prototype.turn = function(newDirection){
   if (!coord.isOpposite(this.direction, newDirection)) {
     this.direction = newDirection;
   }
 };
 
-module.exports = Snake;
+module.exports = Wormy;
