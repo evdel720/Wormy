@@ -43,18 +43,5 @@ Snake.prototype.turn = function(newDirection){
     this.direction = newDirection;
   }
 };
-//
-// let b = {};
-// b.grid = 20;
-// let s = new Snake(b);
-// s.move();
-// s.move();
-// s.move();
-// s.move();
-// s.move();
-// s.move();
-// console.log(s);
-// console.log(s.checkOver());
-
 
 module.exports = Snake;
