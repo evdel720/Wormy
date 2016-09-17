@@ -3,7 +3,7 @@
   It also utilized custom jQueryLite that I built.
 
   [Live][link]
-  [link]:https://evdel720.github.io/snake_browser/
+  [link]:https://evdel720.github.io/Wormy/
 
   <img src="http://res.cloudinary.com/wkdal720/image/upload/v1474137956/wormy_mqk4wa.png" style="width: 300px;height: auto"/>
 
